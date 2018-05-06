@@ -194,19 +194,11 @@ func DMap(fn sumFn, dices ...int) map[int]int {
 }
 
 func main() {
-	fmt.Println()
-	i := 0
-	for v := range DR2(defaultSum, 6, 6) {
-		fmt.Print(v, " ")
-		i++
-	}
-	fmt.Println("\ni:", i)
 	fmt.Println(DMap(defaultSum, 6, 6, 6))
 	fmt.Println("Testing random rolls:")
 	for t := 0; t < 10; t++ {
 		TestR(20, 20)
 	}
-
 	start := time.Now()
 	TestRandAverage(1000000, 20, R)
 	TestRandAverage(1000000, 20, AdvantageR)
