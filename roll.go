@@ -156,18 +156,18 @@ func DC(sides int) <-chan int {
 /* Recursive add to discover all possible sums when rolling a group of dice.
 out: Channel to return final sums on.
 rolled: The values rolled so far.
-unrolled: Slice where each number represents the sides on a future dice to add. */
-func rAdd(out chan int, rolled []int, unrolled []int, fn sumFn) {
-	//fmt.Println("rolled:", rolled, "unrolled:", unrolled)
-	if len(unrolled) == 1 {
-		for _, v := range DS(unrolled[0]) {
+unrolledDice: Slice where each number represents the sides on a future dice to add. */
+func rAdd(out chan int, rolled []int, unrolledDice []int, fn sumFn) {
+	//fmt.Println("rolled:", rolled, "unrolledDice:", unrolledDice)
+	if len(unrolledDice) == 1 {
+		for _, v := range DS(unrolledDice[0]) {
 			finalRolls := append(rolled, v)
 			out <- fn(finalRolls)
 		}
 	} else {
-		for _, v := range DS(unrolled[0]) {
+		for _, v := range DS(unrolledDice[0]) {
 			newRolled := append(rolled, v)
-			rAdd(out, newRolled, unrolled[1:], fn)
+			rAdd(out, newRolled, unrolledDice[1:], fn)
 		}
 	}
 }
@@ -194,13 +194,6 @@ func DMap(fn sumFn, dices ...int) map[int]int {
 }
 
 func main() {
-	for _, v := range DS(20) {
-		fmt.Print(v, " ")
-	}
-	fmt.Println()
-	for v := range DC(20) {
-		fmt.Print(v, " ")
-	}
 	fmt.Println()
 	i := 0
 	for v := range DR2(defaultSum, 6, 6) {
