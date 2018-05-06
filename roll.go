@@ -124,26 +124,12 @@ func TestRandAverage(count int, concurrent int, fn rollFn) {
 	fmt.Println("Average with count", count, ":", float64(finalSum)/float64(count))
 }
 
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
-}
-
 func AdvantageR(sides int, r rand.Rand) int {
-	return max(R(sides, r), R(sides, r))
+	return Max(R(sides, r), R(sides, r))
 }
 
 func DisadvantageR(sides int, r rand.Rand) int {
-	return min(R(sides, r), R(sides, r))
+	return Min(R(sides, r), R(sides, r))
 }
 
 // Dice possibilities as a slice
