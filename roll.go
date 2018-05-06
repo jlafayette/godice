@@ -25,6 +25,28 @@ func TestR(sides int, count int) {
 	fmt.Println(m)
 }
 
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func AdvantageR(r rand.Rand) int {
+	return max(R(20, r), R(20, r))
+}
+
+func DisadvantageR(r rand.Rand) int {
+	return min(R(20, r), R(20, r))
+}
+
 // Dice possibilities as a slice
 func DS(sides int) []int {
 	var r []int
