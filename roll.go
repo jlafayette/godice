@@ -1,6 +1,29 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+func R(sides int, r rand.Rand) int {
+	return r.Intn(sides) + 1
+}
+
+func TestR(sides int, count int) {
+
+	time.Sleep(time.Nanosecond)
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+
+	m := make(map[int]int)
+	for i := 0; i < count; i++ {
+		result := R(sides, *r)
+		m[result] = m[result] + 1
+		fmt.Printf("%2d ", result)
+	}
+	fmt.Println(m)
+}
 
 // Dice possibilities as a slice
 func DS(sides int) []int {
@@ -24,10 +47,9 @@ func DC(sides int) <-chan int {
 }
 
 /* Recursive add to discover all possible sums when rolling a group of dice.
-out: int channel to return final sums on.
+out: Channel to return final sums on.
 current: The sum so far.
-ns: Slice where each int is the number of sides on a dice. Represents future dice to add.
-*/
+ns: Slice where each number represents the sides on a future dice to add. */
 func rAdd(out chan int, current int, ns []int) {
 	if len(ns) == 1 {
 		for _, v := range DS(ns[0]) {
@@ -40,7 +62,7 @@ func rAdd(out chan int, current int, ns []int) {
 	}
 }
 
-/*  */
+/* Figure out all possible sums for a group of dice. */
 func DR2(dices ...int) <-chan int {
 	out := make(chan int)
 	go func() {
@@ -50,6 +72,8 @@ func DR2(dices ...int) <-chan int {
 	return out
 }
 
+/* Create a map where keys are possible sums and values are how many ways to achieve that sum
+Takes a list of numbers, each one represents how many sides are on the dice. */
 func DMap(dices ...int) map[int]int {
 	m := make(map[int]int)
 	for v := range DR2(dices...) {
@@ -74,4 +98,8 @@ func main() {
 	}
 	fmt.Println("\ni:", i)
 	fmt.Println(DMap(6, 6, 6))
+	fmt.Println("Testing random rolls:")
+	for t := 0; t < 10; t++ {
+		TestR(20, 20)
+	}
 }
