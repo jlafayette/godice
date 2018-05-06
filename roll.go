@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+type rollFn func (sides int, r rand.Rand) int
+
 func R(sides int, r rand.Rand) int {
 	return r.Intn(sides) + 1
 }
@@ -25,6 +27,44 @@ func TestR(sides int, count int) {
 	fmt.Println(m)
 }
 
+func TestRandAverage(count int, concurrent int, fn rollFn ) {
+	adder := func(n int) chan int {
+		c := make(chan int)
+		time.Sleep(time.Nanosecond)
+		s := rand.NewSource(time.Now().UnixNano())
+		r := rand.New(s)
+		go func() {
+			sum := 0
+			for i := 0; i < n; i++ {
+				result := fn(20, *r)
+				sum += result
+			}
+			c <- sum
+			close(c)
+		}()
+		return c
+	}
+	chunkSize := count / concurrent
+	remainder := count % concurrent
+	outChans := make([]chan int, concurrent + 1)
+	for i := 0; i < concurrent + 1; i++ {
+		n := chunkSize
+		if i == concurrent {
+			n = remainder
+		}
+		//println("chunkSize", n)
+		outChans[i] = adder(n)
+	}
+	finalSum := 0
+	for _, c := range outChans {
+		for v := range c {
+			//fmt.Println("Adding", v)
+			finalSum += v
+		}
+	}
+	fmt.Println("Average with count", count, ":", float64(finalSum)/float64(count))
+}
+
 func min(x, y int) int {
 	if x < y {
 		return x
@@ -39,12 +79,12 @@ func max(x, y int) int {
 	return y
 }
 
-func AdvantageR(r rand.Rand) int {
-	return max(R(20, r), R(20, r))
+func AdvantageR(sides int, r rand.Rand) int {
+	return max(R(sides, r), R(sides, r))
 }
 
-func DisadvantageR(r rand.Rand) int {
-	return min(R(20, r), R(20, r))
+func DisadvantageR(sides int, r rand.Rand) int {
+	return min(R(sides, r), R(sides, r))
 }
 
 // Dice possibilities as a slice
@@ -124,4 +164,11 @@ func main() {
 	for t := 0; t < 10; t++ {
 		TestR(20, 20)
 	}
+
+	start := time.Now()
+	TestRandAverage(1000000, 20, R)
+	TestRandAverage(1000000, 20, AdvantageR)
+	TestRandAverage(1000000, 20, DisadvantageR)
+	elapsed := time.Since(start)
+	fmt.Printf("Time elapsed: %s\n", elapsed)
 }
