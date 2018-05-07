@@ -22,12 +22,12 @@ func TestDS(t *testing.T) {
 	expected20 := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	actual20 := DS(20)
 	if !(testEq(actual20, expected20)) {
-		t.Errorf("Test failed", expected20, actual20)
+		t.Errorf("Expected %d got %d", expected20, actual20)
 	}
 	expected6 := []int{1, 2, 3, 4, 5, 6}
 	actual6 := DS(6)
 	if !(testEq(actual6, expected6)) {
-		t.Errorf("Test failed", expected6, actual6)
+		t.Errorf("Expected %d got %d", expected6, actual6)
 	}
 }
 
@@ -41,7 +41,7 @@ func testDC(sides int) string {
 			break
 		}
 		if v != compare[i] {
-			return fmt.Sprintf("Unequal Values", compare[i], v)
+			return fmt.Sprintf("Unequal Values %d %d", compare[i], v)
 		}
 		i++
 	}
@@ -56,8 +56,6 @@ func TestDC(t *testing.T) {
 		msg := testDC(n)
 		if msg != "" {
 			t.Errorf(msg)
-		} else {
-			t.Logf("Passed test for %d", n)
 		}
 	}
 }
