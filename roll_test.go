@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"testing"
 )
@@ -101,6 +102,28 @@ func TestDR2(t *testing.T) {
 	}
 }
 
+func TestDMap(t *testing.T) {
+	tests := []struct {
+		name  string
+		sumfn sumFn
+		dice  []int
+		out   map[int]int
+	}{
+		{"1d4", defaultSum, []int{4}, map[int]int{1:1, 2:1, 3:1, 4:1}},
+		{"2d6", defaultSum, []int{6, 6}, map[int]int{2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}},
+		{"3d6", defaultSum, []int{6, 6, 6}, map[int]int{3: 1, 9: 25, 4: 3, 5: 6, 7: 15, 10: 27, 12: 25, 16: 6, 18: 1, 8: 21, 11: 27, 13: 21, 17: 3, 6: 10, 14: 15, 15: 10}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			out := DMap(test.sumfn, test.dice...)
+			eq := reflect.DeepEqual(out, test.out)
+			if !eq {
+				t.Errorf("Got %d, expected %d", out, test.out)
+			}
+		})
+	}
+}
+
 // Useful for generating output to test against DR2 (obviously it should be validated before using to test)
 func generateTestData() {
 	fmt.Println()
@@ -110,4 +133,12 @@ func generateTestData() {
 		i++
 	}
 	fmt.Println("\ni:", i)
+}
+
+func generateDMapData() {
+	fmt.Println()
+	m := DMap(defaultSum, 6, 6, 6)
+	for k, v := range m {
+		fmt.Printf("%d: %d, ", k, v)
+	}
 }

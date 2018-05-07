@@ -128,12 +128,6 @@ func DMap(fn sumFn, dices ...int) map[int]int {
 }
 
 func main() {
-	fmt.Println(DMap(defaultSum, 6, 6, 6))
-	fmt.Println("Testing random rolls:")
-	for t := 0; t < 10; t++ {
-		TestR(20, 20)
-	}
-
 	fmt.Println("Averages from frequency")
 	TestAverage(defaultSum, 20)
 	TestAverage(defaultSum, 12)

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"math/rand"
 	"time"
 	"fmt"
+	"math/rand"
 )
 
 func R(sides int, r rand.Rand) int {
@@ -71,7 +71,7 @@ func DisadvantageR(sides int, r rand.Rand) int {
 	return Min(R(sides, r), R(sides, r))
 }
 
-func main() {
+func randtesting() {
 	fmt.Println("Testing random rolls:")
 	for t := 0; t < 10; t++ {
 		TestR(20, 20)
