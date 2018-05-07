@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"math/big"
 )
 
 func TestDS(t *testing.T) {
@@ -156,6 +157,39 @@ func TestAverage(t *testing.T) {
 	}
 }
 
+func TestAverageF(t *testing.T) {
+	tests := []struct {
+		name    string
+		sumfn   sumFn
+		dice    []int
+		average *big.Rat
+	}{
+		{"d4", defaultSum, []int{4}, big.NewRat(5, 2)},
+		{"d6", defaultSum, []int{6}, big.NewRat(7, 2)},
+		{"d8", defaultSum, []int{8}, big.NewRat(9, 2)},
+		{"d10", defaultSum, []int{10}, big.NewRat(11, 2)},
+		{"d12", defaultSum, []int{12}, big.NewRat(13, 2)},
+		{"d20", defaultSum, []int{20}, big.NewRat(21, 2)},
+		{"2d6", defaultSum, []int{6, 6}, big.NewRat(7, 1)},
+		{"Advantage", dropLowest, []int{20, 20}, big.NewRat(553, 40)},
+		{"Disadvantage", dropHighest, []int{20, 20}, big.NewRat(287,40)},
+		{"3d6", defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
+		{"4d6 drop lowest", dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
+		{"1d12", defaultSum, []int{12}, big.NewRat(13, 2)},
+		{"1d12 reroll 1&2", rerollBelow2, []int{12, 12}, big.NewRat(22, 3)},
+		{"1d4 reroll 1&2", rerollBelow2, []int{4}, big.NewRat(5, 2)},  // doesn't work on 1 dice
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			average := AverageRat(test.sumfn, test.dice...)
+			if average.Cmp(test.average) != 0 {
+				t.Errorf("Got %s, expected %s", average.String(), test.average.String())
+				t.Logf("Result as fraction: %s", average.FloatString(16))
+			}
+		})
+	}
+}
+
 // Useful for generating output to test against DR2 (obviously it should be validated before using to test)
 func generateTestData() {
 	fmt.Println()
@@ -172,5 +206,42 @@ func generateDMapData() {
 	m := DMap(defaultSum, 6, 6, 6)
 	for k, v := range m {
 		fmt.Printf("%d: %d, ", k, v)
+	}
+}
+
+func closeEnough(ep float64, a, b float64) bool {
+	if (a - b) < ep && (b - a) < ep {
+		return true
+	}
+	return false
+}
+
+func findRat() {
+	//7.175
+	// 12.244598765432098
+	// 7.333333333333333
+	whole := int64(12)
+	tgt := 0.244598765432098
+	base := int64(6*6*6*6)
+	f := big.NewRat(1, base)
+	for i := int64(2); i < base; i++ {
+		f.SetFrac64(i, base)
+		n, _ := f.Float64()
+		//fmt.Print("R:", f, " f:",  n, " ")
+
+		if closeEnough(0.00000000000001, n, tgt) {
+			fmt.Println()
+			fmt.Println(f, "==", tgt)
+
+			num := whole * base + i
+			f.SetFrac64(num, base)
+			n2, _ := f.Float64()
+			fmt.Println("Rat:", f, " Float:", n2)
+
+			break
+		}
+		if i % 10 == 0 {
+			//fmt.Println()
+		}
 	}
 }

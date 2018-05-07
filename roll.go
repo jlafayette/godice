@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"sort"
+	"math/big"
 )
 
 type rollFn func(sides int, r rand.Rand) int
@@ -123,4 +124,14 @@ func Average(fn sumFn, dice ...int) float64 {
 		count++
 	}
 	return float64(total) / float64(count)
+}
+
+func AverageRat(fn sumFn, dice ...int) *big.Rat {
+	total := 0
+	count := 0
+	for v := range DR2(fn, dice...) {
+		total += v
+		count ++
+	}
+	return big.NewRat(int64(total), int64(count))
 }
