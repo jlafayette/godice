@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"sort"
 )
@@ -53,17 +52,6 @@ func rerollBelow2(rolls []int) int {
 		return rolls[len(rolls)-1]
 	}
 	return rolls[len(rolls)-2]
-}
-
-func TestAverage(fn sumFn, sides ...int) {
-	total := 0
-	count := 0
-	for v := range DR2(fn, sides...) {
-		total += v
-		count++
-	}
-	average := float64(total) / float64(count)
-	fmt.Println("For", sides, "average is", average)
 }
 
 // Dice possibilities as a slice
@@ -127,27 +115,12 @@ func DMap(fn sumFn, dices ...int) map[int]int {
 	return m
 }
 
-func main() {
-	fmt.Println("Averages from frequency")
-	TestAverage(defaultSum, 20)
-	TestAverage(defaultSum, 12)
-	TestAverage(defaultSum, 10)
-	TestAverage(defaultSum, 8)
-	TestAverage(defaultSum, 6)
-	TestAverage(defaultSum, 4)
-	TestAverage(defaultSum, 6, 6)
-	TestAverage(defaultSum, 6, 6, 6)
-	fmt.Print("(Disadvantage) ")
-	TestAverage(dropHighest, 20, 20)
-	fmt.Print("(Advantage) ")
-	TestAverage(dropLowest, 20, 20)
-	fmt.Print("(Drop lowest) ")
-	TestAverage(dropLowest, 6, 6, 6, 6)
-	fmt.Print("(Default) ")
-	TestAverage(defaultSum, 6, 6, 6)
-
-	fmt.Print("(Reroll 1&2) ")
-	TestAverage(rerollBelow2, 12, 12)
-	fmt.Print("(Reroll 1&2) ")
-	TestAverage(rerollBelow2, 6, 6)
+func Average(fn sumFn, dice ...int) float64 {
+	total := 0
+	count := 0
+	for v := range DR2(fn, dice...) {
+		total += v
+		count++
+	}
+	return float64(total) / float64(count)
 }
