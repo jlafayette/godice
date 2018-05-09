@@ -1,3 +1,39 @@
+// sum			   (rolls)
+// reroll take 2nd (range|condition, rolls)
+// keep x highest  (int, rolls)
+// keep x lowest   (int, rolls)
+
+/* USES
+Advantage    keep 1 highest
+	Highest(1, 20,20)
+Disadvantage keep 1 lowest
+	Lowest(1, 20,20)
+Character Creation keep 3 highest of 4
+	Highest(3, 6,6,6,6)
+Damage
+	Roll(12)
+	Roll(6,6,6,6)
+Damage + reroll 1&2, keep 2nd
+	6,6
+Roll + constant
+Roll - constant
+
+Dice Interface
+	Sum ([]int) int
+	Explode (...int)
+
+For each roll:
+Frequency
+	FMap(dice{}) map[int]int
+Frequency vs target
+	FTgtMap(dice{})
+Random series of rolls
+	RR(dice{}) []int
+Average
+	Average(dice{}) math.Rat
+
+*/
+
 package main
 
 import (
