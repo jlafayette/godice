@@ -33,7 +33,6 @@ Average
 	Average(dice{}) math.Rat
 
 */
-
 package main
 
 import (
@@ -110,6 +109,37 @@ func DC(sides int) <-chan int {
 		close(out)
 	}()
 	return out
+}
+
+func Explode(reroll bool, dice ...int) chan []int {
+	out := make(chan []int)
+	var diceCp []int
+	for _, d := range dice {
+		if reroll {
+			diceCp = append(diceCp, d, d)
+		} else {
+			diceCp = append(diceCp, d)
+		}
+	}
+	go func() {
+		var rolled []int
+		rExplode(out, rolled, diceCp)
+		close(out)
+	}()
+	return out
+}
+
+func rExplode(out chan []int, rolled, unrolled []int) {
+	if len(unrolled) == 1 {
+		for _, v := range DS(unrolled[0]) {
+			out <- append(rolled, v)
+		}
+	} else {
+		for _, v := range DS(unrolled[0]) {
+			newRolled := append(rolled, v)
+			rExplode(out, newRolled, unrolled[1:])
+		}
+	}
 }
 
 /* Recursive add to discover all possible sums when rolling a group of dice.

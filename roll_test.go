@@ -71,6 +71,37 @@ func TestDC(t *testing.T) {
 	}
 }
 
+func TestExplode(t *testing.T) {
+	tests := []struct {
+		name string
+		reroll bool
+		in   []int
+		out  [][]int
+	}{
+		{"d2", false, []int{2}, [][]int{{1}, {2}}},
+		{"d2reroll", true, []int{2}, [][]int{{1, 1}, {1, 2}, {2, 1}, {2, 2}}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := Explode(test.reroll, test.in...)
+			var out [][]int
+			for v := range c {
+				out = append(out, v)
+			}
+			if len(out) != len(test.out) {
+				t.Errorf("Got length of %d, expected %d", len(out), len(test.out))
+				return
+			}
+			t.Logf("     Got: %d", out)
+			t.Logf("Expected: %d", test.out)
+			eq := reflect.DeepEqual(out, test.out)
+			if !eq {
+				t.Errorf("Got %d, expected %d", out, test.out)
+			}
+		})
+	}
+}
+
 func TestDR2(t *testing.T) {
 	tests := []struct {
 		name string
