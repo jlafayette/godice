@@ -149,36 +149,6 @@ func rExplode(out chan []int, rolled, unrolled []int) {
 	}
 }
 
-/* Recursive add to discover all possible sums when rolling a group of dice.
-out: Channel to return final sums on.
-rolled: The values rolled so far.
-unrolledDice: Slice where each number represents the sides on a future dice to add. */
-func rAdd(out chan int, rolled []int, unrolledDice []int, fn sumFn) {
-	//fmt.Println("rolled:", rolled, "unrolledDice:", unrolledDice)
-	if len(unrolledDice) == 1 {
-		for _, v := range DS(unrolledDice[0]) {
-			finalRolls := append(rolled, v)
-			out <- fn(finalRolls)
-		}
-	} else {
-		for _, v := range DS(unrolledDice[0]) {
-			newRolled := append(rolled, v)
-			rAdd(out, newRolled, unrolledDice[1:], fn)
-		}
-	}
-}
-
-/* Figure out all possible sums for a group of dice. */
-func DR2(fn sumFn, dices ...int) <-chan int {
-	out := make(chan int)
-	go func() {
-		var rolled []int
-		rAdd(out, rolled, dices, fn)
-		close(out)
-	}()
-	return out
-}
-
 /* Create a map where keys are possible sums and values are how many ways to achieve that sum
 Takes a list of numbers, each one represents how many sides are on the dice. */
 func DMap(reroll bool, fn sumFn, dices ...int) map[int]int {
