@@ -37,40 +37,6 @@ func TestDS(t *testing.T) {
 	}
 }
 
-func TestDC(t *testing.T) {
-	tests := []struct {
-		name string
-		in   int
-		out  []int
-	}{
-		{"d4", 4, []int{1, 2, 3, 4}},
-		{"d6", 6, []int{1, 2, 3, 4, 5, 6}},
-		{"d8", 8, []int{1, 2, 3, 4, 5, 6, 7, 8}},
-		{"d10", 10, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
-		{"d12", 12, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}},
-		{"d20", 20, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			out := DC(test.in)
-			i := 0
-			for v := range out {
-				if i >= len(test.out) {
-					t.Errorf("Too many results, got %d+, want %d", i+1, len(test.out))
-					break
-				}
-				if v != test.out[i] {
-					t.Errorf("Unequal Values, got %d, want %d", v, test.out[i])
-				}
-				i++
-			}
-			if i < len(test.out) {
-				t.Errorf("Not enough results, got %d, want %d", i, len(test.out))
-			}
-		})
-	}
-}
-
 func TestExplode(t *testing.T) {
 	tests := []struct {
 		name   string

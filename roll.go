@@ -113,18 +113,6 @@ func DS(sides int) []int {
 	return r
 }
 
-// Dice possibilities as a channel
-func DC(sides int) <-chan int {
-	var out = make(chan int)
-	go func() {
-		for i := 1; i <= sides; i++ {
-			out <- i
-		}
-		close(out)
-	}()
-	return out
-}
-
 func Explode(reroll bool, dice ...int) chan []int {
 	out := make(chan []int)
 	var diceCp []int
