@@ -6,6 +6,8 @@ import (
 	"math/rand"
 )
 
+type rollFn func(sides int, r rand.Rand) int
+
 func R(sides int, r rand.Rand) int {
 	return r.Intn(sides) + 1
 }

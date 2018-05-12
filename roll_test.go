@@ -92,8 +92,6 @@ func TestExplode(t *testing.T) {
 				t.Errorf("Got length of %d, expected %d", len(out), len(test.out))
 				return
 			}
-			t.Logf("     Got: %d", out)
-			t.Logf("Expected: %d", test.out)
 			eq := reflect.DeepEqual(out, test.out)
 			if !eq {
 				t.Errorf("Got %d, expected %d", out, test.out)
@@ -176,11 +174,11 @@ func TestAverage(t *testing.T) {
 		{"Disadvantage", true, dropHighest, []int{20}, 7.175},
 		{"3d6", false, defaultSum, []int{6, 6, 6}, 10.5},
 		{"4d6", false, defaultSum, []int{6, 6, 6, 6}, 14},
-		{"4d2", false, defaultSum, []int{2,2,2,2}, 6},
+		{"4d2", false, defaultSum, []int{2, 2, 2, 2}, 6},
 		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
 		{"1d12", false, defaultSum, []int{12}, 6.5},
-		{"1d12 reroll 1&2", true, rerollBelow2, []int{12}, 7.333333333333333},
-		{"1d4 reroll 1&2", true, rerollBelow2, []int{4}, 3.0},
+		{"1d12 reroll 1&2", true, rerollOneAndTwo, []int{12}, 7.333333333333333},
+		{"1d4 reroll 1&2", true, rerollOneAndTwo, []int{4}, 3.0},
 	}
 	//12.244598765428275 (from AnyDice)
 	//12.244598765432098
@@ -215,8 +213,8 @@ func TestAverageF(t *testing.T) {
 		{"3d6", false, defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
 		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
 		{"1d12", false, defaultSum, []int{12}, big.NewRat(13, 2)},
-		{"1d12 reroll 1&2", true, rerollBelow2, []int{12}, big.NewRat(22, 3)},
-		{"1d4 reroll 1&2", true, rerollBelow2, []int{4}, big.NewRat(3, 1)},
+		{"1d12 reroll 1&2", true, rerollOneAndTwo, []int{12}, big.NewRat(22, 3)},
+		{"1d4 reroll 1&2", true, rerollOneAndTwo, []int{4}, big.NewRat(3, 1)},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

@@ -36,15 +36,14 @@ Average
 package main
 
 import (
-	"math/rand"
-	"sort"
 	"math/big"
+	"sort"
 )
-
-type rollFn func(sides int, r rand.Rand) int
 
 // Given a series of rolls, determine how to sum them. Use for re-roll, advantage, etc.
 type sumFn func(rolls []int) int
+
+type keepFn func(roll int) bool
 
 func defaultSum(rolls []int) int {
 	sum := 0
@@ -80,15 +79,29 @@ func dropHighest(rolls []int) int {
 	return sum
 }
 
-// Rewrite to iterate over pairs, taking the first unless it is a 1 or 2
-func rerollBelow2(rolls []int) int {
-	if len(rolls) < 2 {
-		return rolls[0]
+func keepOver2(n int) bool {
+	if n > 2 {
+		return true
+	} else {
+		return false
 	}
-	if rolls[len(rolls)-2] <= 2 {
-		return rolls[len(rolls)-1]
+}
+
+// Iterate over pairs, taking the first unless it fails given keepFn
+func reroll(keep keepFn, rolls []int) int {
+	sum := 0
+	for i := 0; i < len(rolls); i += 2 {
+		if keep(rolls[i]) {
+			sum += rolls[i]
+		} else {
+			sum += rolls[i+1]
+		}
 	}
-	return rolls[len(rolls)-2]
+	return sum
+}
+
+func rerollOneAndTwo(rolls []int) int {
+	return reroll(keepOver2, rolls)
 }
 
 // Dice possibilities as a slice
@@ -133,7 +146,7 @@ func Explode(reroll bool, dice ...int) chan []int {
 func rExplode(out chan []int, rolled, unrolled []int) {
 	if len(unrolled) == 1 {
 		for _, v := range DS(unrolled[0]) {
-			cp := make([]int, len(rolled) + 1)
+			cp := make([]int, len(rolled)+1)
 			for idx, r := range rolled {
 				cp[idx] = r
 			}
@@ -206,7 +219,7 @@ func AverageRat(reroll bool, fn sumFn, dice ...int) *big.Rat {
 	for v := range Explode(reroll, dice...) {
 		s := fn(v)
 		total += s
-		count ++
+		count++
 	}
 	return big.NewRat(int64(total), int64(count))
 }
