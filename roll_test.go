@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 	"reflect"
 	"sort"
 	"testing"
-	"math/big"
 )
 
 func TestDS(t *testing.T) {
@@ -73,10 +73,10 @@ func TestDC(t *testing.T) {
 
 func TestExplode(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
 		reroll bool
-		in   []int
-		out  [][]int
+		in     []int
+		out    [][]int
 	}{
 		{"d2", false, []int{2}, [][]int{{1}, {2}}},
 		{"d2reroll", true, []int{2}, [][]int{{1, 1}, {1, 2}, {2, 1}, {2, 2}}},
@@ -136,18 +136,19 @@ func TestDR2(t *testing.T) {
 
 func TestDMap(t *testing.T) {
 	tests := []struct {
-		name  string
-		sumfn sumFn
-		dice  []int
-		out   map[int]int
+		name   string
+		reroll bool
+		sumfn  sumFn
+		dice   []int
+		out    map[int]int
 	}{
-		{"1d4", defaultSum, []int{4}, map[int]int{1: 1, 2: 1, 3: 1, 4: 1}},
-		{"2d6", defaultSum, []int{6, 6}, map[int]int{2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}},
-		{"3d6", defaultSum, []int{6, 6, 6}, map[int]int{3: 1, 9: 25, 4: 3, 5: 6, 7: 15, 10: 27, 12: 25, 16: 6, 18: 1, 8: 21, 11: 27, 13: 21, 17: 3, 6: 10, 14: 15, 15: 10}},
+		{"1d4", false, defaultSum, []int{4}, map[int]int{1: 1, 2: 1, 3: 1, 4: 1}},
+		{"2d6", false, defaultSum, []int{6, 6}, map[int]int{2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}},
+		{"3d6", false, defaultSum, []int{6, 6, 6}, map[int]int{3: 1, 9: 25, 4: 3, 5: 6, 7: 15, 10: 27, 12: 25, 16: 6, 18: 1, 8: 21, 11: 27, 13: 21, 17: 3, 6: 10, 14: 15, 15: 10}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			out := DMap(test.sumfn, test.dice...)
+			out := DMap(test.reroll, test.sumfn, test.dice...)
 			eq := reflect.DeepEqual(out, test.out)
 			if !eq {
 				t.Errorf("Got %d, expected %d", out, test.out)
@@ -176,7 +177,7 @@ func TestAverage(t *testing.T) {
 		{"4d6 drop lowest", dropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
 		{"1d12", defaultSum, []int{12}, 6.5},
 		{"1d12 reroll 1&2", rerollBelow2, []int{12, 12}, 7.333333333333333},
-		{"1d4 reroll 1&2", rerollBelow2, []int{4}, 2.5},  // doesn't work on 1 dice
+		{"1d4 reroll 1&2", rerollBelow2, []int{4}, 2.5}, // doesn't work on 1 dice
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -203,12 +204,12 @@ func TestAverageF(t *testing.T) {
 		{"d20", defaultSum, []int{20}, big.NewRat(21, 2)},
 		{"2d6", defaultSum, []int{6, 6}, big.NewRat(7, 1)},
 		{"Advantage", dropLowest, []int{20, 20}, big.NewRat(553, 40)},
-		{"Disadvantage", dropHighest, []int{20, 20}, big.NewRat(287,40)},
+		{"Disadvantage", dropHighest, []int{20, 20}, big.NewRat(287, 40)},
 		{"3d6", defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
 		{"4d6 drop lowest", dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
 		{"1d12", defaultSum, []int{12}, big.NewRat(13, 2)},
 		{"1d12 reroll 1&2", rerollBelow2, []int{12, 12}, big.NewRat(22, 3)},
-		{"1d4 reroll 1&2", rerollBelow2, []int{4}, big.NewRat(5, 2)},  // doesn't work on 1 dice
+		{"1d4 reroll 1&2", rerollBelow2, []int{4}, big.NewRat(5, 2)}, // doesn't work on 1 dice
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -234,14 +235,14 @@ func generateTestData() {
 
 func generateDMapData() {
 	fmt.Println()
-	m := DMap(defaultSum, 6, 6, 6)
+	m := DMap(false, defaultSum, 6, 6, 6)
 	for k, v := range m {
 		fmt.Printf("%d: %d, ", k, v)
 	}
 }
 
 func closeEnough(ep float64, a, b float64) bool {
-	if (a - b) < ep && (b - a) < ep {
+	if (a-b) < ep && (b-a) < ep {
 		return true
 	}
 	return false
@@ -253,7 +254,7 @@ func findRat() {
 	// 7.333333333333333
 	whole := int64(12)
 	tgt := 0.244598765432098
-	base := int64(6*6*6*6)
+	base := int64(6 * 6 * 6 * 6)
 	f := big.NewRat(1, base)
 	for i := int64(2); i < base; i++ {
 		f.SetFrac64(i, base)
@@ -264,14 +265,14 @@ func findRat() {
 			fmt.Println()
 			fmt.Println(f, "==", tgt)
 
-			num := whole * base + i
+			num := whole*base + i
 			f.SetFrac64(num, base)
 			n2, _ := f.Float64()
 			fmt.Println("Rat:", f, " Float:", n2)
 
 			break
 		}
-		if i % 10 == 0 {
+		if i%10 == 0 {
 			//fmt.Println()
 		}
 	}

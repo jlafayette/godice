@@ -174,10 +174,11 @@ func DR2(fn sumFn, dices ...int) <-chan int {
 
 /* Create a map where keys are possible sums and values are how many ways to achieve that sum
 Takes a list of numbers, each one represents how many sides are on the dice. */
-func DMap(fn sumFn, dices ...int) map[int]int {
+func DMap(reroll bool, fn sumFn, dices ...int) map[int]int {
 	m := make(map[int]int)
-	for v := range DR2(fn, dices...) {
-		m[v] = m[v] + 1
+	for v := range Explode(reroll, dices...) {
+		s := fn(v)
+		m[s] = m[s] + 1
 	}
 	return m
 }
