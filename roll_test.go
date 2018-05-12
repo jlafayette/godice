@@ -160,28 +160,34 @@ func TestDMap(t *testing.T) {
 func TestAverage(t *testing.T) {
 	tests := []struct {
 		name    string
+		reroll  bool
 		sumfn   sumFn
 		dice    []int
 		average float64
 	}{
-		{"d4", defaultSum, []int{4}, 2.5},
-		{"d6", defaultSum, []int{6}, 3.5},
-		{"d8", defaultSum, []int{8}, 4.5},
-		{"d10", defaultSum, []int{10}, 5.5},
-		{"d12", defaultSum, []int{12}, 6.5},
-		{"d20", defaultSum, []int{20}, 10.5},
-		{"2d6", defaultSum, []int{6, 6}, 7},
-		{"Advantage", dropLowest, []int{20, 20}, 13.825},
-		{"Disadvantage", dropHighest, []int{20, 20}, 7.175},
-		{"3d6", defaultSum, []int{6, 6, 6}, 10.5},
-		{"4d6 drop lowest", dropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
-		{"1d12", defaultSum, []int{12}, 6.5},
-		{"1d12 reroll 1&2", rerollBelow2, []int{12, 12}, 7.333333333333333},
-		{"1d4 reroll 1&2", rerollBelow2, []int{4}, 2.5}, // doesn't work on 1 dice
+		{"d4", false, defaultSum, []int{4}, 2.5},
+		{"d6", false, defaultSum, []int{6}, 3.5},
+		{"d8", false, defaultSum, []int{8}, 4.5},
+		{"d10", false, defaultSum, []int{10}, 5.5},
+		{"d12", false, defaultSum, []int{12}, 6.5},
+		{"d20", false, defaultSum, []int{20}, 10.5},
+		{"2d6", false, defaultSum, []int{6, 6}, 7},
+		{"Advantage", true, dropLowest, []int{20}, 13.825},
+		{"Disadvantage", true, dropHighest, []int{20}, 7.175},
+		{"3d6", false, defaultSum, []int{6, 6, 6}, 10.5},
+		{"4d6", false, defaultSum, []int{6, 6, 6, 6}, 14},
+		{"4d2", false, defaultSum, []int{2,2,2,2}, 6},
+		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
+		{"1d12", false, defaultSum, []int{12}, 6.5},
+		{"1d12 reroll 1&2", true, rerollBelow2, []int{12}, 7.333333333333333},
+		{"1d4 reroll 1&2", true, rerollBelow2, []int{4}, 3.0},
 	}
+	//12.244598765428275 (from AnyDice)
+	//12.244598765432098
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			average := Average(test.sumfn, test.dice...)
+			average := Average(test.reroll, test.sumfn, test.dice...)
 			if average != test.average {
 				t.Errorf("Got %f, expected %f", average, test.average)
 			}
@@ -192,28 +198,29 @@ func TestAverage(t *testing.T) {
 func TestAverageF(t *testing.T) {
 	tests := []struct {
 		name    string
+		reroll  bool
 		sumfn   sumFn
 		dice    []int
 		average *big.Rat
 	}{
-		{"d4", defaultSum, []int{4}, big.NewRat(5, 2)},
-		{"d6", defaultSum, []int{6}, big.NewRat(7, 2)},
-		{"d8", defaultSum, []int{8}, big.NewRat(9, 2)},
-		{"d10", defaultSum, []int{10}, big.NewRat(11, 2)},
-		{"d12", defaultSum, []int{12}, big.NewRat(13, 2)},
-		{"d20", defaultSum, []int{20}, big.NewRat(21, 2)},
-		{"2d6", defaultSum, []int{6, 6}, big.NewRat(7, 1)},
-		{"Advantage", dropLowest, []int{20, 20}, big.NewRat(553, 40)},
-		{"Disadvantage", dropHighest, []int{20, 20}, big.NewRat(287, 40)},
-		{"3d6", defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
-		{"4d6 drop lowest", dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
-		{"1d12", defaultSum, []int{12}, big.NewRat(13, 2)},
-		{"1d12 reroll 1&2", rerollBelow2, []int{12, 12}, big.NewRat(22, 3)},
-		{"1d4 reroll 1&2", rerollBelow2, []int{4}, big.NewRat(5, 2)}, // doesn't work on 1 dice
+		{"d4", false, defaultSum, []int{4}, big.NewRat(5, 2)},
+		{"d6", false, defaultSum, []int{6}, big.NewRat(7, 2)},
+		{"d8", false, defaultSum, []int{8}, big.NewRat(9, 2)},
+		{"d10", false, defaultSum, []int{10}, big.NewRat(11, 2)},
+		{"d12", false, defaultSum, []int{12}, big.NewRat(13, 2)},
+		{"d20", false, defaultSum, []int{20}, big.NewRat(21, 2)},
+		{"2d6", false, defaultSum, []int{6, 6}, big.NewRat(7, 1)},
+		{"Advantage", true, dropLowest, []int{20}, big.NewRat(553, 40)},
+		{"Disadvantage", true, dropHighest, []int{20}, big.NewRat(287, 40)},
+		{"3d6", false, defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
+		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
+		{"1d12", false, defaultSum, []int{12}, big.NewRat(13, 2)},
+		{"1d12 reroll 1&2", true, rerollBelow2, []int{12}, big.NewRat(22, 3)},
+		{"1d4 reroll 1&2", true, rerollBelow2, []int{4}, big.NewRat(3, 1)},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			average := AverageRat(test.sumfn, test.dice...)
+			average := AverageRat(test.reroll, test.sumfn, test.dice...)
 			if average.Cmp(test.average) != 0 {
 				t.Errorf("Got %s, expected %s", average.String(), test.average.String())
 				t.Logf("Result as fraction: %s", average.FloatString(16))

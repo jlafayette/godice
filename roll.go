@@ -80,6 +80,7 @@ func dropHighest(rolls []int) int {
 	return sum
 }
 
+// Rewrite to iterate over pairs, taking the first unless it is a 1 or 2
 func rerollBelow2(rolls []int) int {
 	if len(rolls) < 2 {
 		return rolls[0]
@@ -132,7 +133,12 @@ func Explode(reroll bool, dice ...int) chan []int {
 func rExplode(out chan []int, rolled, unrolled []int) {
 	if len(unrolled) == 1 {
 		for _, v := range DS(unrolled[0]) {
-			out <- append(rolled, v)
+			cp := make([]int, len(rolled) + 1)
+			for idx, r := range rolled {
+				cp[idx] = r
+			}
+			cp[len(rolled)] = v
+			out <- cp
 		}
 	} else {
 		for _, v := range DS(unrolled[0]) {
@@ -183,21 +189,23 @@ func DMap(reroll bool, fn sumFn, dices ...int) map[int]int {
 	return m
 }
 
-func Average(fn sumFn, dice ...int) float64 {
+func Average(reroll bool, fn sumFn, dice ...int) float64 {
 	total := 0
 	count := 0
-	for v := range DR2(fn, dice...) {
-		total += v
+	for v := range Explode(reroll, dice...) {
+		s := fn(v)
+		total += s
 		count++
 	}
 	return float64(total) / float64(count)
 }
 
-func AverageRat(fn sumFn, dice ...int) *big.Rat {
+func AverageRat(reroll bool, fn sumFn, dice ...int) *big.Rat {
 	total := 0
 	count := 0
-	for v := range DR2(fn, dice...) {
-		total += v
+	for v := range Explode(reroll, dice...) {
+		s := fn(v)
+		total += s
 		count ++
 	}
 	return big.NewRat(int64(total), int64(count))
