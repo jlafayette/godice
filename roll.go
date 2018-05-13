@@ -33,7 +33,7 @@ Average
 	Average(dice{}) math.Rat
 
 */
-package main
+package dice
 
 import (
 	"math/big"

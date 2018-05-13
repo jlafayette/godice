@@ -1,4 +1,4 @@
-package main
+package dice
 
 func Min(x, y int) int {
 	if x < y {
