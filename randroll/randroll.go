@@ -1,4 +1,4 @@
-package dice
+package randroll
 
 import (
 	"time"

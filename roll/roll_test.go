@@ -1,4 +1,4 @@
-package dice
+package roll
 
 import (
 	"fmt"
