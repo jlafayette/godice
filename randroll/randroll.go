@@ -4,6 +4,7 @@ import (
 	"time"
 	"fmt"
 	"math/rand"
+	"github.com/jlafayette/godice/mathutil"
 )
 
 type rollFn func(sides int, r rand.Rand) int
@@ -66,11 +67,11 @@ func TestRandAverage(count int, concurrent int, fn rollFn) {
 }
 
 func AdvantageR(sides int, r rand.Rand) int {
-	return Max(R(sides, r), R(sides, r))
+	return mathutil.Max(R(sides, r), R(sides, r))
 }
 
 func DisadvantageR(sides int, r rand.Rand) int {
-	return Min(R(sides, r), R(sides, r))
+	return mathutil.Min(R(sides, r), R(sides, r))
 }
 
 func randtesting() {
