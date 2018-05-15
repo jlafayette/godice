@@ -39,6 +39,26 @@ func (d *DnDRoll) Rand(n int) []int {
 	return sums
 }
 
+func D20() DnDRoll {
+	return DnDRoll{false, roll.DefaultSum, []int{20}}
+}
+
 func Advantage() DnDRoll {
 	return DnDRoll{true, roll.DropLowest, []int{20}}
+}
+
+func Disadvantage() DnDRoll {
+	return DnDRoll{true, roll.DropHighest, []int{20}}
+}
+
+func Stat() DnDRoll {
+	return DnDRoll{false, roll.DropLowest, []int{6, 6, 6, 6}}
+}
+
+func BattleAxe() DnDRoll {
+	return DnDRoll{false, roll.DefaultSum, []int{12}}
+}
+
+func Maul() DnDRoll {
+	return DnDRoll{false, roll.DefaultSum, []int{6, 6}}
 }
