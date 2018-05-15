@@ -80,6 +80,16 @@ func TestStat(t *testing.T) {
 	rt.Run(t)
 }
 
+func TestCoryStat(t *testing.T) {
+	rt := rollTest{
+		CoryStat(),
+		map[int]int{8: 1, 9: 2, 10: 3, 11: 4, 12: 5, 13: 6, 14: 5, 15: 4, 16: 3, 17: 2, 18: 1},
+		13.0,
+		big.NewRat(13, 1),
+	}
+	rt.Run(t)
+}
+
 func TestBattleAxe(t *testing.T) {
 	rt := rollTest{
 		BattleAxe(),
@@ -101,7 +111,7 @@ func TestMaul(t *testing.T) {
 }
 
 //func Test1(t *testing.T) {
-//	generateDMapData(Disadvantage())
+//	generateDMapData(CoryStat())
 //}
 
 // Print sorted DMap of a roll
