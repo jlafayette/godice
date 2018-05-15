@@ -7,19 +7,46 @@ import (
 	"testing"
 )
 
-func TestAdvantage(t *testing.T) {
-	a := Advantage()
+type rollTest struct {
+	roll DnDRoll
+	expDMap map[int]int
+	expAverage float64
+	expAverageRat *big.Rat
+}
+
+func (r *rollTest) Run (t *testing.T) {
 	t.Run("DMap", func(t *testing.T) {
-		expected := map[int]int{1: 1, 2: 3, 3: 5, 4: 7, 5: 9, 6: 11, 7: 13, 8: 15, 9: 17, 10: 19, 11: 21, 12: 23, 13: 25, 14: 27, 15: 29, 16: 31, 17: 33, 18: 35, 19: 37, 20: 39}
-		actual := a.DMap()
-		eq := reflect.DeepEqual(actual, expected)
+		actual := r.roll.DMap()
+		eq := reflect.DeepEqual(actual, r.expDMap)
 		if !eq {
-			t.Errorf("Got %d, expected %d", actual, expected)
+			t.Errorf("Got %d, expected %d", actual, r.expDMap)
 		}
 	})
-	fmt.Println(a.Average())
-	fmt.Println(a.AverageRat())
-	fmt.Println(a.Rand(10))
+	t.Run("Average", func(t *testing.T) {
+		actual := r.roll.Average()
+		if r.expAverage != actual {
+			t.Errorf("Got %f, expected %f", actual, r.expAverage)
+		}
+	})
+	t.Run("AverageRat", func(t *testing.T) {
+		actual := r.roll.AverageRat()
+		if r.expAverageRat.Cmp(actual) != 0 {
+			t.Errorf("Got %s, expected %s", actual.String(), r.expAverageRat.String())
+		}
+	})
+	t.Run("Rand", func(t *testing.T) {
+		t.Log(r.roll.Rand(10))
+	})
+}
+
+func TestAdvantage(t *testing.T) {
+	rt := rollTest{
+		Advantage(),
+		map[int]int{1: 1, 2: 3, 3: 5, 4: 7, 5: 9, 6: 11, 7: 13, 8: 15, 9: 17, 10: 19, 11: 21, 12: 23, 13: 25, 14: 27, 15: 29, 16: 31, 17: 33, 18: 35, 19: 37, 20: 39},
+		13.825,
+		big.NewRat(553, 40),
+	}
+	rt.Run(t)
 }
 
 // Useful for generating test data for maps
