@@ -1,9 +1,10 @@
 package randroll
 
 import (
-	"time"
-	"fmt"
+	"github.com/jlafayette/godice/mathutil"
+	"math/big"
 	"math/rand"
+	"time"
 )
 
 type rollFn func(sides int, r rand.Rand) int
@@ -12,22 +13,23 @@ func R(sides int, r rand.Rand) int {
 	return r.Intn(sides) + 1
 }
 
-func TestR(sides int, count int) {
-
-	time.Sleep(time.Nanosecond)
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-
-	m := make(map[int]int)
-	for i := 0; i < count; i++ {
-		result := R(sides, *r)
-		m[result] = m[result] + 1
-		fmt.Printf("%2d ", result)
-	}
-	fmt.Println(m)
+func AdvantageR(sides int, r rand.Rand) int {
+	return mathutil.Max(R(sides, r), R(sides, r))
 }
 
-func TestRandAverage(count int, concurrent int, fn rollFn) {
+func DisadvantageR(sides int, r rand.Rand) int {
+	return mathutil.Min(R(sides, r), R(sides, r))
+}
+
+func RD(dice []int, r rand.Rand) []int {
+	results := make([]int, len(dice))
+	for i, d := range dice {
+		results[i] = r.Intn(d) + 1
+	}
+	return results
+}
+
+func RandAverage(count int, concurrent int, fn rollFn) *big.Rat {
 	adder := func(n int) chan int {
 		c := make(chan int)
 		time.Sleep(time.Nanosecond)
@@ -62,26 +64,5 @@ func TestRandAverage(count int, concurrent int, fn rollFn) {
 			finalSum += v
 		}
 	}
-	fmt.Println("Average with count", count, ":", float64(finalSum)/float64(count))
-}
-
-func AdvantageR(sides int, r rand.Rand) int {
-	return Max(R(sides, r), R(sides, r))
-}
-
-func DisadvantageR(sides int, r rand.Rand) int {
-	return Min(R(sides, r), R(sides, r))
-}
-
-func randtesting() {
-	fmt.Println("Testing random rolls:")
-	for t := 0; t < 10; t++ {
-		TestR(20, 20)
-	}
-	start := time.Now()
-	TestRandAverage(1000000, 20, R)
-	TestRandAverage(1000000, 20, AdvantageR)
-	TestRandAverage(1000000, 20, DisadvantageR)
-	elapsed := time.Since(start)
-	fmt.Printf("Time elapsed: %s\n", elapsed)
+	return big.NewRat(int64(finalSum), int64(count))
 }

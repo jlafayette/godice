@@ -69,13 +69,13 @@ func TestDMap(t *testing.T) {
 	tests := []struct {
 		name   string
 		reroll bool
-		sumfn  sumFn
+		sumfn  SumFn
 		dice   []int
 		out    map[int]int
 	}{
-		{"1d4", false, defaultSum, []int{4}, map[int]int{1: 1, 2: 1, 3: 1, 4: 1}},
-		{"2d6", false, defaultSum, []int{6, 6}, map[int]int{2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}},
-		{"3d6", false, defaultSum, []int{6, 6, 6}, map[int]int{3: 1, 9: 25, 4: 3, 5: 6, 7: 15, 10: 27, 12: 25, 16: 6, 18: 1, 8: 21, 11: 27, 13: 21, 17: 3, 6: 10, 14: 15, 15: 10}},
+		{"1d4", false, DefaultSum, []int{4}, map[int]int{1: 1, 2: 1, 3: 1, 4: 1}},
+		{"2d6", false, DefaultSum, []int{6, 6}, map[int]int{2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1}},
+		{"3d6", false, DefaultSum, []int{6, 6, 6}, map[int]int{3: 1, 9: 25, 4: 3, 5: 6, 7: 15, 10: 27, 12: 25, 16: 6, 18: 1, 8: 21, 11: 27, 13: 21, 17: 3, 6: 10, 14: 15, 15: 10}},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -92,26 +92,26 @@ func TestAverage(t *testing.T) {
 	tests := []struct {
 		name    string
 		reroll  bool
-		sumfn   sumFn
+		sumfn   SumFn
 		dice    []int
 		average float64
 	}{
-		{"d4", false, defaultSum, []int{4}, 2.5},
-		{"d6", false, defaultSum, []int{6}, 3.5},
-		{"d8", false, defaultSum, []int{8}, 4.5},
-		{"d10", false, defaultSum, []int{10}, 5.5},
-		{"d12", false, defaultSum, []int{12}, 6.5},
-		{"d20", false, defaultSum, []int{20}, 10.5},
-		{"2d6", false, defaultSum, []int{6, 6}, 7},
-		{"Advantage", true, dropLowest, []int{20}, 13.825},
-		{"Disadvantage", true, dropHighest, []int{20}, 7.175},
-		{"3d6", false, defaultSum, []int{6, 6, 6}, 10.5},
-		{"4d6", false, defaultSum, []int{6, 6, 6, 6}, 14},
-		{"4d2", false, defaultSum, []int{2, 2, 2, 2}, 6},
-		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
-		{"1d12", false, defaultSum, []int{12}, 6.5},
-		{"1d12 reroll 1&2", true, rerollOneAndTwo, []int{12}, 7.333333333333333},
-		{"1d4 reroll 1&2", true, rerollOneAndTwo, []int{4}, 3.0},
+		{"d4", false, DefaultSum, []int{4}, 2.5},
+		{"d6", false, DefaultSum, []int{6}, 3.5},
+		{"d8", false, DefaultSum, []int{8}, 4.5},
+		{"d10", false, DefaultSum, []int{10}, 5.5},
+		{"d12", false, DefaultSum, []int{12}, 6.5},
+		{"d20", false, DefaultSum, []int{20}, 10.5},
+		{"2d6", false, DefaultSum, []int{6, 6}, 7},
+		{"Advantage", true, DropLowest, []int{20}, 13.825},
+		{"Disadvantage", true, DropHighest, []int{20}, 7.175},
+		{"3d6", false, DefaultSum, []int{6, 6, 6}, 10.5},
+		{"4d6", false, DefaultSum, []int{6, 6, 6, 6}, 14},
+		{"4d2", false, DefaultSum, []int{2, 2, 2, 2}, 6},
+		{"4d6 drop lowest", false, DropLowest, []int{6, 6, 6, 6}, 12.244598765432098},
+		{"1d12", false, DefaultSum, []int{12}, 6.5},
+		{"1d12 Reroll 1&2", true, RerollOneAndTwo, []int{12}, 7.333333333333333},
+		{"1d4 Reroll 1&2", true, RerollOneAndTwo, []int{4}, 3.0},
 	}
 	//12.244598765428275 (from AnyDice)
 	//12.244598765432098
@@ -130,24 +130,24 @@ func TestAverageF(t *testing.T) {
 	tests := []struct {
 		name    string
 		reroll  bool
-		sumfn   sumFn
+		sumfn   SumFn
 		dice    []int
 		average *big.Rat
 	}{
-		{"d4", false, defaultSum, []int{4}, big.NewRat(5, 2)},
-		{"d6", false, defaultSum, []int{6}, big.NewRat(7, 2)},
-		{"d8", false, defaultSum, []int{8}, big.NewRat(9, 2)},
-		{"d10", false, defaultSum, []int{10}, big.NewRat(11, 2)},
-		{"d12", false, defaultSum, []int{12}, big.NewRat(13, 2)},
-		{"d20", false, defaultSum, []int{20}, big.NewRat(21, 2)},
-		{"2d6", false, defaultSum, []int{6, 6}, big.NewRat(7, 1)},
-		{"Advantage", true, dropLowest, []int{20}, big.NewRat(553, 40)},
-		{"Disadvantage", true, dropHighest, []int{20}, big.NewRat(287, 40)},
-		{"3d6", false, defaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
-		{"4d6 drop lowest", false, dropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
-		{"1d12", false, defaultSum, []int{12}, big.NewRat(13, 2)},
-		{"1d12 reroll 1&2", true, rerollOneAndTwo, []int{12}, big.NewRat(22, 3)},
-		{"1d4 reroll 1&2", true, rerollOneAndTwo, []int{4}, big.NewRat(3, 1)},
+		{"d4", false, DefaultSum, []int{4}, big.NewRat(5, 2)},
+		{"d6", false, DefaultSum, []int{6}, big.NewRat(7, 2)},
+		{"d8", false, DefaultSum, []int{8}, big.NewRat(9, 2)},
+		{"d10", false, DefaultSum, []int{10}, big.NewRat(11, 2)},
+		{"d12", false, DefaultSum, []int{12}, big.NewRat(13, 2)},
+		{"d20", false, DefaultSum, []int{20}, big.NewRat(21, 2)},
+		{"2d6", false, DefaultSum, []int{6, 6}, big.NewRat(7, 1)},
+		{"Advantage", true, DropLowest, []int{20}, big.NewRat(553, 40)},
+		{"Disadvantage", true, DropHighest, []int{20}, big.NewRat(287, 40)},
+		{"3d6", false, DefaultSum, []int{6, 6, 6}, big.NewRat(21, 2)},
+		{"4d6 drop lowest", false, DropLowest, []int{6, 6, 6, 6}, big.NewRat(15869, 1296)},
+		{"1d12", false, DefaultSum, []int{12}, big.NewRat(13, 2)},
+		{"1d12 Reroll 1&2", true, RerollOneAndTwo, []int{12}, big.NewRat(22, 3)},
+		{"1d4 Reroll 1&2", true, RerollOneAndTwo, []int{4}, big.NewRat(3, 1)},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -162,7 +162,7 @@ func TestAverageF(t *testing.T) {
 
 func generateDMapData() {
 	fmt.Println()
-	m := DMap(false, defaultSum, 6, 6, 6)
+	m := DMap(false, DefaultSum, 6, 6, 6)
 	for k, v := range m {
 		fmt.Printf("%d: %d, ", k, v)
 	}

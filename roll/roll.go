@@ -1,5 +1,5 @@
 // sum			   (rolls)
-// reroll take 2nd (range|condition, rolls)
+// Reroll take 2nd (range|condition, rolls)
 // keep x highest  (int, rolls)
 // keep x lowest   (int, rolls)
 
@@ -13,7 +13,7 @@ Character Creation keep 3 highest of 4
 Damage
 	Roll(12)
 	Roll(6,6,6,6)
-Damage + reroll 1&2, keep 2nd
+Damage + Reroll 1&2, keep 2nd
 	6,6
 Roll + constant
 Roll - constant
@@ -41,11 +41,11 @@ import (
 )
 
 // Given a series of rolls, determine how to sum them. Use for re-roll, advantage, etc.
-type sumFn func(rolls []int) int
+type SumFn func(rolls []int) int
 
-type keepFn func(roll int) bool
+type KeepFn func(roll int) bool
 
-func defaultSum(rolls []int) int {
+func DefaultSum(rolls []int) int {
 	sum := 0
 	for _, roll := range rolls {
 		sum += roll
@@ -53,7 +53,10 @@ func defaultSum(rolls []int) int {
 	return sum
 }
 
-func dropLowest(rolls []int) int {
+func DropLowest(rolls []int) int {
+	if len(rolls) == 1 {
+		return rolls[0]
+	}
 	rollsCp := make([]int, len(rolls))
 	copy(rollsCp, rolls)
 	sort.Slice(rollsCp, func(i, j int) bool {
@@ -66,7 +69,7 @@ func dropLowest(rolls []int) int {
 	return sum
 }
 
-func dropHighest(rolls []int) int {
+func DropHighest(rolls []int) int {
 	rollsCp := make([]int, len(rolls))
 	copy(rollsCp, rolls)
 	sort.Slice(rollsCp, func(i, j int) bool {
@@ -87,8 +90,8 @@ func keepOver2(n int) bool {
 	}
 }
 
-// Iterate over pairs, taking the first unless it fails given keepFn
-func reroll(keep keepFn, rolls []int) int {
+// Iterate over pairs, taking the first unless it fails given KeepFn
+func Reroll(keep KeepFn, rolls []int) int {
 	sum := 0
 	for i := 0; i < len(rolls); i += 2 {
 		if keep(rolls[i]) {
@@ -100,8 +103,8 @@ func reroll(keep keepFn, rolls []int) int {
 	return sum
 }
 
-func rerollOneAndTwo(rolls []int) int {
-	return reroll(keepOver2, rolls)
+func RerollOneAndTwo(rolls []int) int {
+	return Reroll(keepOver2, rolls)
 }
 
 // Dice possibilities as a slice
@@ -151,7 +154,7 @@ func rExplode(out chan []int, rolled, unrolled []int) {
 
 /* Create a map where keys are possible sums and values are how many ways to achieve that sum
 Takes a list of numbers, each one represents how many sides are on the dice. */
-func DMap(reroll bool, fn sumFn, dices ...int) map[int]int {
+func DMap(reroll bool, fn SumFn, dices ...int) map[int]int {
 	m := make(map[int]int)
 	for v := range Explode(reroll, dices...) {
 		s := fn(v)
@@ -160,7 +163,7 @@ func DMap(reroll bool, fn sumFn, dices ...int) map[int]int {
 	return m
 }
 
-func Average(reroll bool, fn sumFn, dice ...int) float64 {
+func Average(reroll bool, fn SumFn, dice ...int) float64 {
 	total := 0
 	count := 0
 	for v := range Explode(reroll, dice...) {
@@ -171,7 +174,7 @@ func Average(reroll bool, fn sumFn, dice ...int) float64 {
 	return float64(total) / float64(count)
 }
 
-func AverageRat(reroll bool, fn sumFn, dice ...int) *big.Rat {
+func AverageRat(reroll bool, fn SumFn, dice ...int) *big.Rat {
 	total := 0
 	count := 0
 	for v := range Explode(reroll, dice...) {
