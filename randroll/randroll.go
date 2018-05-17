@@ -1,26 +1,18 @@
 package randroll
 
 import (
-	"github.com/jlafayette/godice/mathutil"
+	"github.com/jlafayette/godice/roll"
 	"math/big"
 	"math/rand"
 	"time"
 )
 
-type rollFn func(sides int, r rand.Rand) int
-
+// R returns a random roll for a dice with the given number of sides.
 func R(sides int, r rand.Rand) int {
 	return r.Intn(sides) + 1
 }
 
-func AdvantageR(sides int, r rand.Rand) int {
-	return mathutil.Max(R(sides, r), R(sides, r))
-}
-
-func DisadvantageR(sides int, r rand.Rand) int {
-	return mathutil.Min(R(sides, r), R(sides, r))
-}
-
+// RD returns a random roll for each dice in a group.
 func RD(dice []int, r rand.Rand) []int {
 	results := make([]int, len(dice))
 	for i, d := range dice {
@@ -29,7 +21,8 @@ func RD(dice []int, r rand.Rand) []int {
 	return results
 }
 
-func RandAverage(count int, concurrent int, fn rollFn) *big.Rat {
+// RandAverage calculates an average from many random rolls for the given set of dice.
+func RandAverage(dice []int, sumfn roll.SumFn, count int, concurrent int) *big.Rat {
 	adder := func(n int) chan int {
 		c := make(chan int)
 		time.Sleep(time.Nanosecond)
@@ -38,8 +31,8 @@ func RandAverage(count int, concurrent int, fn rollFn) *big.Rat {
 		go func() {
 			sum := 0
 			for i := 0; i < n; i++ {
-				result := fn(20, *r)
-				sum += result
+				result := RD(dice, *r)
+				sum += sumfn(result)
 			}
 			c <- sum
 			close(c)
