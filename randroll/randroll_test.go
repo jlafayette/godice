@@ -1,6 +1,7 @@
 package randroll
 
 import (
+	"github.com/jlafayette/godice/roll"
 	"math/big"
 	"math/rand"
 	"testing"
@@ -64,17 +65,17 @@ func BenchmarkRD(b *testing.B) {
 func TestRandAverage(t *testing.T) {
 	tests := []struct {
 		name     string
-		fn       rollFn
+		dice     []int
+		sumfn    roll.SumFn
 		expected *big.Rat
 	}{
-		{"d20", R, big.NewRat(21, 2)},
-		{"Advantage", AdvantageR, big.NewRat(553, 40)},
-		{"Disadvantage", DisadvantageR, big.NewRat(287, 40)},
+		{"d20", []int{20}, roll.DefaultSum, big.NewRat(21, 2)},
+		{"Advantage", []int{20, 20}, roll.DropLowest, big.NewRat(553, 40)},
+		{"Disadvantage", []int{20, 20}, roll.DropHighest, big.NewRat(287, 40)},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			r := RandAverage(10000000, 20, test.fn)
-			//fmt.Println("Average with count", count, ":", float64(finalSum)/float64(count))
+			r := RandAverage(test.dice, test.sumfn, 1000000, 20)
 			t.Logf("Got %s, expected %s", r.FloatString(3), test.expected.FloatString(3))
 		})
 	}

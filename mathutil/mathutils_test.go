@@ -5,7 +5,12 @@ import (
 )
 
 func TestMax(t *testing.T) {
-	tests := []struct {name string; expected int; x int; y int}{
+	tests := []struct {
+		name     string
+		expected int
+		x        int
+		y        int
+	}{
 		{"xmax", 3, 3, 2},
 		{"same", 12, 12, 12},
 		{"xneg", 0, -2, 0},
@@ -22,9 +27,13 @@ func TestMax(t *testing.T) {
 	}
 }
 
-
 func TestMin(t *testing.T) {
-	tests := []struct {name string; expected int; x int; y int}{
+	tests := []struct {
+		name     string
+		expected int
+		x        int
+		y        int
+	}{
 		{"ymin", 2, 3, 2},
 		{"same", 12, 12, 12},
 		{"xneg", -2, -2, 0},
