@@ -1,11 +1,12 @@
 package randroll
 
 import (
-	"github.com/jlafayette/godice/roll"
 	"math/big"
 	"math/rand"
 	"time"
 )
+
+type sumFn func(rolls []int) int
 
 // R returns a random roll for a dice with the given number of sides.
 func R(sides int, r rand.Rand) int {
@@ -22,7 +23,7 @@ func RD(dice []int, r rand.Rand) []int {
 }
 
 // RandAverage calculates an average from many random rolls for the given set of dice.
-func RandAverage(dice []int, sumfn roll.SumFn, count int, concurrent int) *big.Rat {
+func RandAverage(dice []int, sumfn sumFn, count int, concurrent int) *big.Rat {
 	adder := func(n int) chan int {
 		c := make(chan int)
 		time.Sleep(time.Nanosecond)
