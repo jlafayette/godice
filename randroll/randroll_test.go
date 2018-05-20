@@ -66,7 +66,7 @@ func TestRandAverage(t *testing.T) {
 	tests := []struct {
 		name     string
 		dice     []int
-		sumfn    roll.SumFn
+		sumfn    sumFn
 		expected *big.Rat
 	}{
 		{"d20", []int{20}, roll.DefaultSum, big.NewRat(21, 2)},
